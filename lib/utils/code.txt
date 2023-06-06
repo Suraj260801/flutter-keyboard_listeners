@@ -1,0 +1,173 @@
+
+
+
+
+
+
+
+
+
+ //KeyboardListeners
+ 1.KeyboardListener
+ 2.RawKeyboardListener
+ 3.EditableText
+ 4.Shortcuts and Actions(FocusableActionDetector)
+  Widget build(BuildContext context) => KeyboardListener(
+      autofocus: true,
+      focusNode: FocusNode(),
+      onKeyEvent: (event){
+
+      log('key pressed ${event.logicalKey.keyLabel}');
+      log('key pressed ${event.logicalKey.keyId}');
+      log('key pressed ${event.logicalKey.debugName}');
+      log('key pressed ${event.logicalKey.synonyms}');
+      log('key pressed ${event.logicalKey.runtimeType}');
+      log('key pressed ${event.timeStamp}');
+
+        //showEnteredKey('${event.logicalKey.keyLabel} key is entered');
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Text('Swalekhan'),
+        ),
+      )
+  );
+
+
+
+
+
+
+import 'dart:developer';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<String> keys = [];
+  ValueNotifier<String> keyboardKey = ValueNotifier('None');
+
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<String>(
+        valueListenable: keyboardKey,
+        builder: (BuildContext context, value, Widget? child) {
+          print('building');
+          return RawKeyboardListener(
+              autofocus: true,
+              focusNode: FocusNode(),
+              onKey: (event) {
+                final key = event.logicalKey;
+
+                if (event is RawKeyDownEvent) {
+                  if(event.isKeyPressed(LogicalKeyboardKey.altLeft)){
+                    _showDialog('Invalid Key','Try another key');
+                    return;
+                  }
+
+                  if (keys.contains(key.keyLabel)){
+                    _showDialog('Key Repeated','Try another key');
+                  };
+                  print('added key');
+                  keyboardKey.value = key.keyLabel;
+                  keys.add(keyboardKey.value);
+                } else if (event is RawKeyUpEvent) {
+                  print('Key Relesed');
+                }
+
+
+
+              },
+              child: Scaffold(
+                  appBar: AppBar(
+                    automaticallyImplyLeading: false,
+                    title: const Text('Swalekhan'),
+                  ),
+                  body: Center(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.2,
+                            height: MediaQuery.of(context).size.height * 0.7,
+                            child: ListView.separated(
+                              itemCount: keys.length,
+                              itemBuilder: (context, index) {
+                                return TextButton(
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(
+                                        Colors.deepOrange),
+                                  ),
+                                  onPressed: null,
+                                  child: Text(keys[index]),
+                                );
+                              },
+                              separatorBuilder: (BuildContext context, int index) {
+                                return const Divider();
+                              },
+                            )),
+
+                      ],
+                    ),
+                  )));
+        },
+      );
+  // Define a method to show the dialog box
+  void _showDialog(String popUpTitle,String popUpDescription) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(popUpTitle),
+          content:  Text(popUpDescription),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+}
+
+
+
+
+
+
+
+Column(
+                    children: [
+                      SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.2,
+                          height: MediaQuery.of(context).size.height * 0.7,
+                          child: ListView.separated(
+                            itemCount: keys.length,
+                            itemBuilder: (context, index) {
+                              return TextButton(
+                                style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Colors.deepOrange),
+                                ),
+                                onPressed: null,
+                                child: Text(keys[index]),
+                              );
+                            },
+                            separatorBuilder:
+                                (BuildContext context, int index) {
+                              return const Divider();
+                            },
+                          )),
+                    ],
+                  ),
